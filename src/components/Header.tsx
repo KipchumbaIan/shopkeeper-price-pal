@@ -1,10 +1,15 @@
 
 import React from 'react';
-import { Package, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { Package, TrendingUp, Users, BarChart3, LogOut, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const Header = () => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   
   const isActive = (path: string) => location.pathname === path;
   
@@ -14,6 +19,22 @@ const Header = () => {
     { path: '/suppliers', label: 'Suppliers', icon: Users },
     { path: '/trends', label: 'Trends', icon: TrendingUp },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -41,8 +62,15 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="flex items-center">
-            <div className="text-sm text-gray-600">Welcome, Shopkeeper</div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center text-sm text-gray-600">
+              <User className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">{user?.email}</span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:ml-2 sm:inline">Sign Out</span>
+            </Button>
           </div>
         </div>
       </div>

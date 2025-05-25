@@ -9,10 +9,205 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      price_entries: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          price: number
+          product_id: string
+          supplier_id: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          price: number
+          product_id: string
+          supplier_id: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          price?: number
+          product_id?: string
+          supplier_id?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_entries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_entries_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prices: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          location: string | null
+          phone: string | null
+          shop_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          location?: string | null
+          phone?: string | null
+          shop_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          location?: string | null
+          phone?: string | null
+          shop_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          contact: string | null
+          created_at: string
+          email: string | null
+          id: string
+          location: string | null
+          name: string
+          rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      latest_prices: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          notes: string | null
+          price: number | null
+          product_category: string | null
+          product_id: string | null
+          product_name: string | null
+          supplier_id: string | null
+          supplier_location: string | null
+          supplier_name: string | null
+          unit: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_entries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_entries_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
