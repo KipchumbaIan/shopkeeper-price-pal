@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
-import { Plus, Users, Phone, MapPin, Edit, Trash2 } from 'lucide-react';
+import { Plus, Users, Phone, MapPin, Edit, Trash2, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PriceEntryForm from '../components/PriceEntryForm';
 import { useSuppliers } from '../hooks/useSuppliers';
 
 const Suppliers = () => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showPriceForm, setShowPriceForm] = useState(false);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
   const { suppliers, isLoading, addSupplier, deleteSupplier } = useSuppliers();
 
   const [formData, setFormData] = useState({
@@ -40,6 +43,11 @@ const Suppliers = () => {
     if (confirm('Are you sure you want to delete this supplier?')) {
       await deleteSupplier.mutateAsync(id);
     }
+  };
+
+  const handleAddPriceEntry = (supplierId: string) => {
+    setSelectedSupplierId(supplierId);
+    setShowPriceForm(true);
   };
 
   if (isLoading) {
@@ -133,6 +141,13 @@ const Suppliers = () => {
               </div>
             </form>
           </Card>
+        ) : showPriceForm ? (
+          <div className="mb-8">
+            <PriceEntryForm
+              supplierId={selectedSupplierId}
+              onCancel={() => setShowPriceForm(false)}
+            />
+          </div>
         ) : (
           <div className="mb-8">
             <Button onClick={() => setShowAddForm(true)}>
@@ -210,7 +225,12 @@ const Suppliers = () => {
                 </div>
                 
                 <div className="mt-4 pt-4 border-t">
-                  <Button variant="outline" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleAddPriceEntry(supplier.id)}
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
                     Add Price Entry
                   </Button>
                 </div>

@@ -1,13 +1,16 @@
 
 import React, { useState } from 'react';
-import { Plus, Package, Edit, Trash2 } from 'lucide-react';
+import { Plus, Package, Edit, Trash2, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AddProductForm from '../components/AddProductForm';
+import PriceEntryForm from '../components/PriceEntryForm';
 import { useProducts } from '../hooks/useProducts';
 
 const Products = () => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showPriceForm, setShowPriceForm] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   const { products, isLoading, addProduct, deleteProduct } = useProducts();
 
   const handleAddProduct = async (productData: any) => {
@@ -23,6 +26,11 @@ const Products = () => {
     if (confirm('Are you sure you want to delete this product?')) {
       await deleteProduct.mutateAsync(id);
     }
+  };
+
+  const handleAddPriceEntry = (productId: string) => {
+    setSelectedProductId(productId);
+    setShowPriceForm(true);
   };
 
   if (isLoading) {
@@ -49,6 +57,13 @@ const Products = () => {
             <AddProductForm
               onSubmit={handleAddProduct}
               onCancel={() => setShowAddForm(false)}
+            />
+          </div>
+        ) : showPriceForm ? (
+          <div className="mb-8">
+            <PriceEntryForm
+              productId={selectedProductId}
+              onCancel={() => setShowPriceForm(false)}
             />
           </div>
         ) : (
@@ -112,9 +127,14 @@ const Products = () => {
                   )}
                 </div>
                 
-                <div className="mt-4 pt-4 border-t">
-                  <Button variant="outline" className="w-full">
-                    View Prices
+                <div className="mt-4 pt-4 border-t space-y-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleAddPriceEntry(product.id)}
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Add Price Entry
                   </Button>
                 </div>
               </Card>

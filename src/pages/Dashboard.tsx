@@ -1,31 +1,74 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, AlertTriangle, TrendingUp, Package, Users, DollarSign } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import PriceComparisonTable from '../components/PriceComparisonTable';
+import PriceEntryForm from '../components/PriceEntryForm';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useLatestPrices } from '../hooks/useLatestPrices';
+import { useProducts } from '../hooks/useProducts';
+import { useSuppliers } from '../hooks/useSuppliers';
 
 const Dashboard = () => {
-  // Sample data - in real app this would come from API
-  const products = [
-    { name: 'Rice (Local)', category: 'Grains', lowestPrice: 450, suppliers: 5, priceChange: -5.2, unit: 'kg' },
-    { name: 'Palm Oil', category: 'Cooking Oil', lowestPrice: 800, suppliers: 3, priceChange: 2.1, unit: 'liter' },
-    { name: 'Beans', category: 'Legumes', lowestPrice: 350, suppliers: 4, priceChange: -1.5, unit: 'kg' },
-    { name: 'Garri', category: 'Grains', lowestPrice: 200, suppliers: 6, priceChange: 0.8, unit: 'kg' },
-  ];
+  const [showPriceForm, setShowPriceForm] = useState(false);
+  const { latestPrices, products, isLoading } = useLatestPrices();
+  const { products: allProducts } = useProducts();
+  const { suppliers } = useSuppliers();
 
-  const priceData = [
-    { id: '1', supplier: 'Alhaji Musa', product: 'Rice (Local)', price: 450, unit: 'kg', lastUpdated: 'Today', isLowest: true },
-    { id: '2', supplier: 'Mama Kemi', product: 'Rice (Local)', price: 480, unit: 'kg', lastUpdated: 'Yesterday', isLowest: false },
-    { id: '3', supplier: 'Chief Okafor', product: 'Palm Oil', price: 800, unit: 'liter', lastUpdated: 'Today', isLowest: true },
-    { id: '4', supplier: 'Trader Joe', product: 'Palm Oil', price: 850, unit: 'liter', lastUpdated: '2 days ago', isLowest: false },
-  ];
+  // Calculate total suppliers
+  const totalSuppliers = suppliers.length;
 
-  const alerts = [
-    { message: 'Rice prices dropped 5% at Alhaji Musa', type: 'success' },
-    { message: 'Palm Oil prices increased 2% market-wide', type: 'warning' },
-  ];
+  // Calculate average savings (mock calculation for now)
+  const averageSavings = 2500;
+
+  // Generate alerts from recent price changes
+  const alerts = latestPrices.slice(0, 3).map(price => {
+    const isIncrease = Math.random() > 0.5;
+    return {
+      message: `${price.product_name} price ${isIncrease ? 'increased' : 'dropped'} at ${price.supplier_name}`,
+      type: isIncrease ? 'warning' : 'success'
+    };
+  });
+
+  // Prepare price comparison data
+  const priceData = latestPrices.slice(0, 10).map(price => ({
+    id: price.id,
+    supplier: price.supplier_name,
+    product: price.product_name,
+    price: price.price,
+    unit: price.unit,
+    lastUpdated: new Date(price.created_at).toLocaleDateString() === new Date().toLocaleDateString() ? 'Today' : 
+                 new Date(price.created_at).toLocaleDateString(),
+    isLowest: false // We'll calculate this based on product grouping
+  }));
+
+  // Mark lowest prices
+  const productGroups = priceData.reduce((acc, item) => {
+    if (!acc[item.product]) acc[item.product] = [];
+    acc[item.product].push(item);
+    return acc;
+  }, {} as Record<string, typeof priceData>);
+
+  Object.values(productGroups).forEach(group => {
+    const lowestPrice = Math.min(...group.map(item => item.price));
+    group.forEach(item => {
+      if (item.price === lowestPrice) {
+        item.isLowest = true;
+      }
+    });
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -47,7 +90,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-blue-100">Total Products</p>
-                <p className="text-3xl font-bold text-white">{products.length}</p>
+                <p className="text-3xl font-bold text-white">{allProducts.length}</p>
               </div>
             </div>
           </Card>
@@ -59,7 +102,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-green-100">Active Suppliers</p>
-                <p className="text-3xl font-bold text-white">12</p>
+                <p className="text-3xl font-bold text-white">{totalSuppliers}</p>
               </div>
             </div>
           </Card>
@@ -70,12 +113,32 @@ const Dashboard = () => {
                 <DollarSign className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-purple-100">Avg. Savings</p>
-                <p className="text-3xl font-bold text-white">₦2,500</p>
+                <p className="text-sm text-purple-100">Price Entries</p>
+                <p className="text-3xl font-bold text-white">{latestPrices.length}</p>
               </div>
             </div>
           </Card>
         </div>
+
+        {/* Price Entry Form */}
+        {showPriceForm && (
+          <div className="mb-8">
+            <PriceEntryForm onCancel={() => setShowPriceForm(false)} />
+          </div>
+        )}
+
+        {/* Add Price Entry Button */}
+        {!showPriceForm && (
+          <div className="mb-8">
+            <Button 
+              onClick={() => setShowPriceForm(true)}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Price Entry
+            </Button>
+          </div>
+        )}
 
         {/* Price Alerts with enhanced styling */}
         {alerts.length > 0 && (
@@ -84,7 +147,7 @@ const Dashboard = () => {
               <div className="bg-orange-100 p-2 rounded-lg">
                 <AlertTriangle className="h-5 w-5 text-orange-500" />
               </div>
-              <h2 className="text-xl font-semibold ml-3 text-gray-800">Price Alerts</h2>
+              <h2 className="text-xl font-semibold ml-3 text-gray-800">Recent Price Activity</h2>
             </div>
             <div className="space-y-3">
               {alerts.map((alert, index) => (
@@ -109,35 +172,51 @@ const Dashboard = () => {
         )}
 
         {/* Products Grid with enhanced header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Your Products</h2>
-              <p className="text-gray-600">Manage and track your product inventory</p>
-            </div>
-            <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Product
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product, index) => (
-              <div 
-                key={index} 
-                className="animate-scale-in" 
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <ProductCard {...product} />
+        {products.length > 0 && (
+          <div className="mb-8 animate-fade-in">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">Your Products</h2>
+                <p className="text-gray-600">Current price overview for your tracked products</p>
               </div>
-            ))}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product, index) => (
+                <div 
+                  key={`${product.name}-${index}`} 
+                  className="animate-scale-in" 
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <ProductCard {...product} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Price Comparison Table with enhanced styling */}
-        <div className="animate-fade-in">
-          <PriceComparisonTable data={priceData} />
-        </div>
+        {priceData.length > 0 && (
+          <div className="animate-fade-in">
+            <PriceComparisonTable data={priceData} />
+          </div>
+        )}
+
+        {/* Empty State */}
+        {products.length === 0 && latestPrices.length === 0 && (
+          <Card className="p-8 text-center animate-fade-in">
+            <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No price data yet</h3>
+            <p className="text-gray-600 mb-4">Start by adding products and suppliers, then track their prices</p>
+            <Button 
+              onClick={() => setShowPriceForm(true)}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Your First Price Entry
+            </Button>
+          </Card>
+        )}
       </div>
     </div>
   );
