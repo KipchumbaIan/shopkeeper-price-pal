@@ -25,6 +25,7 @@ export const useLatestPrices = () => {
     data: latestPrices = [],
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ['latest-prices', user?.id],
     queryFn: async () => {
@@ -40,6 +41,7 @@ export const useLatestPrices = () => {
       return data as LatestPrice[];
     },
     enabled: !!user,
+    refetchInterval: 30000, // Refetch every 30 seconds to get latest data
   });
 
   // Group by product to get stats
@@ -81,5 +83,6 @@ export const useLatestPrices = () => {
     products,
     isLoading,
     error,
+    refetch,
   };
 };

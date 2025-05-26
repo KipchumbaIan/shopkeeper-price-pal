@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, AlertTriangle, TrendingUp, Package, Users, DollarSign } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import PriceComparisonTable from '../components/PriceComparisonTable';
@@ -12,11 +12,16 @@ import { useSuppliers } from '../hooks/useSuppliers';
 
 const Dashboard = () => {
   const [showPriceForm, setShowPriceForm] = useState(false);
-  const { latestPrices, products, isLoading } = useLatestPrices();
+  const { latestPrices, products, isLoading, refetch } = useLatestPrices();
   const { products: allProducts } = useProducts();
   const { suppliers } = useSuppliers();
 
-  // Calculate total suppliers
+  // Refetch data when component mounts to ensure fresh data
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  // Calculate total suppliers from the actual suppliers hook
   const totalSuppliers = suppliers.length;
 
   // Calculate average savings (mock calculation for now)
