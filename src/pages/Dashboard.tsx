@@ -1,20 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, AlertTriangle, TrendingUp, Package, Users, DollarSign } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import PriceComparisonTable from '../components/PriceComparisonTable';
 import PriceEntryForm from '../components/PriceEntryForm';
+import UserProfilesCarousel from '../components/UserProfilesCarousel';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useLatestPrices } from '../hooks/useLatestPrices';
 import { useProducts } from '../hooks/useProducts';
 import { useSuppliers } from '../hooks/useSuppliers';
+import { useUserAnalytics } from '../hooks/useUserAnalytics';
 
 const Dashboard = () => {
   const [showPriceForm, setShowPriceForm] = useState(false);
   const { latestPrices, products, isLoading, refetch } = useLatestPrices();
   const { products: allProducts } = useProducts();
   const { suppliers } = useSuppliers();
+  const { userProfiles, totalUsers, isLoading: isLoadingUsers } = useUserAnalytics();
 
   // Refetch data when component mounts to ensure fresh data
   useEffect(() => {
@@ -87,7 +89,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Stats with enhanced design */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-scale-in">
             <div className="flex items-center">
               <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm">
@@ -107,7 +109,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-green-100">Active Suppliers</p>
-                <p className="text-3xl font-bold text-white">{totalSuppliers}</p>
+                <p className="text-3xl font-bold text-white">{suppliers.length}</p>
               </div>
             </div>
           </Card>
@@ -123,7 +125,26 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
+
+          <Card className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-scale-in">
+            <div className="flex items-center">
+              <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-orange-100">System Users</p>
+                <p className="text-3xl font-bold text-white">{totalUsers}</p>
+              </div>
+            </div>
+          </Card>
         </div>
+
+        {/* User Profiles Carousel */}
+        {totalUsers > 0 && (
+          <div className="mb-8 animate-fade-in">
+            <UserProfilesCarousel profiles={userProfiles} totalUsers={totalUsers} />
+          </div>
+        )}
 
         {/* Price Entry Form */}
         {showPriceForm && (
