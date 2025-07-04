@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Dashboard from '@/pages/Dashboard';
@@ -13,6 +14,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import AdminSetupPage from '@/pages/AdminSetup';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 function App() {
   const queryClient = new QueryClient()
@@ -22,13 +24,33 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/suppliers" element={<Suppliers />} />
-            <Route path="/trends" element={<Trends />} />
             <Route path="/login" element={<AuthForm />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/products" element={
+              <ProtectedRoute>
+                <Products />
+              </ProtectedRoute>
+            } />
+            <Route path="/suppliers" element={
+              <ProtectedRoute>
+                <Suppliers />
+              </ProtectedRoute>
+            } />
+            <Route path="/trends" element={
+              <ProtectedRoute>
+                <Trends />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin-setup" element={
+              <ProtectedRoute>
+                <AdminSetupPage />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
-            <Route path="/admin-setup" element={<AdminSetupPage />} />
           </Routes>
         </Router>
         <Toaster />
