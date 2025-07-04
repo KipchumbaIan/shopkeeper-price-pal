@@ -142,7 +142,7 @@ const Trends = () => {
                       dataKey={product} 
                       stroke={colors[index % colors.length]} 
                       strokeWidth={2} 
-                      name={`${product} (₦)`}
+                      name={`${product} (KSh)`}
                       connectNulls={false}
                     />
                   ))}
@@ -174,7 +174,7 @@ const Trends = () => {
                       key={product}
                       dataKey={product} 
                       fill={colors[index % colors.length]} 
-                      name={`${product} (₦)`}
+                      name={`${product} (KSh)`}
                     />
                   ))}
                 </BarChart>

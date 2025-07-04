@@ -118,7 +118,7 @@ const PriceEntryForm = ({ onCancel, productId, supplierId }: PriceEntryFormProps
           </div>
           
           <div>
-            <Label htmlFor="price">Price (₦) *</Label>
+            <Label htmlFor="price">Price (KSh) *</Label>
             <Input
               id="price"
               type="number"

@@ -63,7 +63,7 @@ const PriceComparisonTable = ({ data }: PriceComparisonTableProps) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-bold text-gray-900">
-                    <span className="text-lg">₦{item.price}</span>
+                    <span className="text-lg">KSh {item.price}</span>
                     <span className="text-gray-500">/{item.unit}</span>
                   </div>
                 </td>

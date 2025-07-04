@@ -30,7 +30,7 @@ const ProductCard = ({ name, category, lowestPrice, suppliers, priceChange, unit
       
       <div className="mb-4">
         <div className="text-right">
-          <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">₦{lowestPrice}</p>
+          <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">KSh {lowestPrice}</p>
           <p className="text-sm text-gray-500">per {unit}</p>
         </div>
       </div>
